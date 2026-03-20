@@ -41,10 +41,10 @@ export async function removeStudentAction(id: string) {
 
 export async function verifyAdminPassword(password: string) {
   const actual = getAdminPassword();
-  return actual === password;
+  return actual.trim() === password.trim();
 }
 
 export async function updateAdminPassword(newPassword: string) {
-  saveAdminPassword(newPassword);
+  saveAdminPassword(newPassword.trim());
   return { success: true };
 }
