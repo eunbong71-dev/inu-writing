@@ -4,6 +4,7 @@ import path from 'path';
 const DATA_DIR = path.join(process.cwd(), 'data');
 const STUDENTS_FILE = path.join(DATA_DIR, 'students.json');
 const TOPIC_FILE = path.join(DATA_DIR, 'topic.json');
+const ADMIN_FILE = path.join(DATA_DIR, 'admin.json');
 
 type Student = {
   name: string;
@@ -56,4 +57,23 @@ export function getTopic(): string {
 export function saveTopic(topic: string) {
   ensureDir();
   fs.writeFileSync(TOPIC_FILE, JSON.stringify({ topic }), 'utf-8');
+}
+
+export function getAdminPassword(): string {
+  ensureDir();
+  if (!fs.existsSync(ADMIN_FILE)) {
+    return "admin123"; // Default password
+  }
+  try {
+    const data = fs.readFileSync(ADMIN_FILE, 'utf-8');
+    const { password } = JSON.parse(data);
+    return password;
+  } catch (e) {
+    return "admin123";
+  }
+}
+
+export function saveAdminPassword(password: string) {
+  ensureDir();
+  fs.writeFileSync(ADMIN_FILE, JSON.stringify({ password }), 'utf-8');
 }

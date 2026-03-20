@@ -1,6 +1,6 @@
 "use server";
 
-import { getStudents, saveStudents, getTopic, saveTopic as saveT } from "@/lib/data-store";
+import { getStudents, saveStudents, getTopic, saveTopic as saveT, getAdminPassword, saveAdminPassword } from "@/lib/data-store";
 
 export async function fetchStudents() {
   return getStudents();
@@ -36,5 +36,15 @@ export async function removeStudentAction(id: string) {
   const all = getStudents();
   const filtered = all.filter(s => s.id !== id);
   saveStudents(filtered);
+  return { success: true };
+}
+
+export async function verifyAdminPassword(password: string) {
+  const actual = getAdminPassword();
+  return actual === password;
+}
+
+export async function updateAdminPassword(newPassword: string) {
+  saveAdminPassword(newPassword);
   return { success: true };
 }

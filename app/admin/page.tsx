@@ -31,7 +31,9 @@ import {
   setWritingTopic as saveT, 
   fetchWritingTopic, 
   registerStudent,
-  removeStudentAction
+  removeStudentAction,
+  verifyAdminPassword,
+  updateAdminPassword
 } from "@/app/actions/studentActions";
 
 type Student = {
@@ -57,6 +59,9 @@ export default function AdminDashboard() {
   const [writingTopic, setWritingTopic] = useState("글쓰기 주제를 입력하세요");
   const [isBulkMode, setIsBulkMode] = useState(false);
   const [bulkInput, setBulkInput] = useState("");
+
+  const [newAdminPassword, setNewAdminPassword] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
   const refreshData = useCallback(async () => {
     setIsRefreshing(true);
@@ -125,6 +130,13 @@ export default function AdminDashboard() {
     refreshData();
   };
 
+  const resetSubmission = async (studentId: string) => {
+    if (confirm("학생이 글을 다시 쓸 수 있도록 허용하시겠습니까? (이전 제출 기록이 초기화되지는 않지만, 다시 수정 및 제출이 가능해집니다.)")) {
+      await updateStudent(studentId, { isSubmitted: false, isLocked: false });
+      refreshData();
+    }
+  };
+
   const removeStudent = async (studentId: string) => {
     if (confirm("정말로 삭제하시겠습니까?")) {
       await removeStudentAction(studentId);
@@ -155,12 +167,24 @@ export default function AdminDashboard() {
     });
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "admin123") {
+    const success = await verifyAdminPassword(password);
+    if (success) {
       setIsLoggedIn(true);
     } else {
       alert("비밀번호가 올바르지 않습니다.");
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newAdminPassword) return;
+    if (confirm("비밀번호를 변경하시겠습니까?")) {
+      await updateAdminPassword(newAdminPassword);
+      setNewAdminPassword("");
+      setIsChangingPassword(false);
+      alert("비밀번호가 성공적으로 변경되었습니다.");
     }
   };
 
@@ -194,7 +218,7 @@ export default function AdminDashboard() {
               로그인하기
             </button>
           </form>
-          <p className="text-center text-xs text-zinc-400 font-bold">초기 비밀번호: admin123</p>
+          <p className="text-center text-xs text-zinc-400 font-bold">초기 비밀번호: admin123 (로그인 후 변경 가능)</p>
         </motion.div>
       </main>
     );
@@ -306,13 +330,50 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <button 
-          onClick={() => setIsLoggedIn(false)}
-          className="flex items-center gap-2 text-zinc-400 hover:text-accent font-black px-2 transition-colors mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-800"
-        >
-          <LogOut className="w-5 h-5" />
-          로그아웃
-        </button>
+        <div className="mt-auto pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-4">
+          {isChangingPassword ? (
+            <form onSubmit={handleUpdatePassword} className="space-y-2">
+              <input 
+                type="password"
+                value={newAdminPassword}
+                onChange={(e) => setNewAdminPassword(e.target.value)}
+                placeholder="새 비밀번호 입력"
+                className="w-full h-10 px-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-accent/20 transition-all font-bold text-xs"
+              />
+              <div className="flex gap-2">
+                <button 
+                  type="submit"
+                  className="flex-1 h-9 rounded-lg bg-accent text-white font-black text-[10px] hover:opacity-90 transition-all"
+                >
+                  변경 저장
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => setIsChangingPassword(false)}
+                  className="flex-1 h-9 rounded-lg bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 font-black text-[10px] hover:opacity-90 transition-all"
+                >
+                  취소
+                </button>
+              </div>
+            </form>
+          ) : (
+            <button 
+              onClick={() => setIsChangingPassword(true)}
+              className="flex items-center gap-2 text-zinc-400 hover:text-accent font-black px-2 transition-colors w-full text-left"
+            >
+              <Lock className="w-5 h-5" />
+              비밀번호 변경
+            </button>
+          )}
+
+          <button 
+            onClick={() => setIsLoggedIn(false)}
+            className="flex items-center gap-2 text-zinc-400 hover:text-accent font-black px-2 transition-colors w-full text-left"
+          >
+            <LogOut className="w-5 h-5" />
+            로그아웃
+          </button>
+        </div>
       </aside>
 
       {/* Content Area */}
@@ -417,14 +478,13 @@ export default function AdminDashboard() {
                   </div>
 
                   <button 
-                    onClick={() => toggleLock(s.id, s.isLocked)}
-                    disabled={s.isSubmitted}
+                    onClick={() => s.isSubmitted ? resetSubmission(s.id) : toggleLock(s.id, s.isLocked)}
                     className={cn(
                       "w-full h-11 rounded-2xl font-black flex items-center justify-center gap-2 transition-all shadow-sm active:scale-[0.98] text-sm",
                       s.isLocked 
                         ? "bg-accent text-white hover:bg-accent-dark" 
                         : s.isSubmitted
-                          ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed"
+                          ? "bg-emerald-500 text-white hover:bg-emerald-600"
                           : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200"
                     )}
                   >
@@ -433,10 +493,15 @@ export default function AdminDashboard() {
                         <Unlock className="w-4 h-4" />
                         해제 승인
                       </>
+                    ) : s.isSubmitted ? (
+                      <>
+                        <RefreshCw className="w-4 h-4" />
+                        재작성 허용
+                      </>
                     ) : (
                       <>
                         <Lock className="w-4 h-4" />
-                        {s.isSubmitted ? "제출 완료" : "강제 잠금"}
+                        강제 잠금
                       </>
                     )}
                   </button>
