@@ -1,65 +1,69 @@
-import Image from "next/image";
+"use client";
+
+import { motion } from "framer-motion";
+import { GraduationCap, ShieldCheck, UserCog } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main className="flex min-h-screen flex-col items-center justify-center p-6 bg-background">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="max-w-4xl w-full text-center space-y-12"
+      >
+        <div className="space-y-4">
+          <h1 className="text-5xl font-extrabold tracking-tight sm:text-6xl text-foreground">
+            INU Writing <span className="text-primary italic">Guardian</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-xl text-zinc-500 dark:text-zinc-400 max-w-2xl mx-auto">
+            정직한 글쓰기 문화를 위한 스마트 실시간 모니터링 플랫폼
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-8">
+          {/* Student Entrance */}
+          <Link href="/student" className="group">
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="h-full p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:shadow-xl hover:border-primary/50 transition-all duration-300"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
+                <GraduationCap className="w-8 h-8 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold mb-3 text-foreground">학생(Student)</h2>
+              <p className="text-zinc-500 dark:text-zinc-400">
+                성명과 학번을 입력하여 접속하세요.<br />
+                시험 중 다른 창 이동 시 글쓰기가 잠깁니다.
+              </p>
+            </motion.div>
+          </Link>
+
+          {/* Admin Entrance */}
+          <Link href="/admin" className="group">
+            <motion.div 
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="h-full p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:shadow-xl hover:border-accent/50 transition-all duration-300"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6 group-hover:bg-accent/20 transition-colors">
+                <UserCog className="w-8 h-8 text-accent" />
+              </div>
+              <h2 className="text-2xl font-bold mb-3 text-foreground">관리자(Admin)</h2>
+              <p className="text-zinc-500 dark:text-zinc-400">
+                교수용 관리 대시보드입니다.<br />
+                학생 등록 및 실시간 잠금 해제가 가능합니다.
+              </p>
+            </motion.div>
+          </Link>
         </div>
-      </main>
-    </div>
+
+        <div className="flex items-center justify-center gap-2 text-sm text-zinc-400">
+          <ShieldCheck className="w-4 h-4" />
+          <span>보안 프로토콜 활성화됨</span>
+        </div>
+      </motion.div>
+    </main>
   );
 }
