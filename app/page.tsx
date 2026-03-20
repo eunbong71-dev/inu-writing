@@ -35,7 +35,7 @@ export default function Home() {
               <h2 className="text-2xl font-bold mb-3 text-foreground">학생(Student)</h2>
               <p className="text-zinc-500 dark:text-zinc-400">
                 성명과 학번을 입력하여 접속하세요.<br />
-                시험 중 다른 창 이동 시 글쓰기가 잠깁니다.
+                글쓰기 중 다른 창 이동 시 글쓰기가 잠깁니다.
               </p>
             </motion.div>
           </Link>

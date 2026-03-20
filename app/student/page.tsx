@@ -201,7 +201,7 @@ export default function StudentPage() {
               disabled={isLoading}
               className="group relative w-full h-14 md:h-16 rounded-2xl bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-black text-lg hover:opacity-90 active:scale-[0.98] transition-all shadow-xl disabled:opacity-50"
             >
-              {isLoading ? "입장 중..." : "시험 시작하기"}
+              {isLoading ? "입장 중..." : "글쓰기 시작"}
             </button>
           </form>
           <div className="text-center text-[10px] md:text-xs text-zinc-400 pt-2 border-t border-zinc-100 dark:border-zinc-800">
