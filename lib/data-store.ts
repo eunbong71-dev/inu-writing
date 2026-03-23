@@ -1,10 +1,4 @@
-import fs from 'fs';
-import path from 'path';
-
-const DATA_DIR = path.join(process.cwd(), 'data');
-const STUDENTS_FILE = path.join(DATA_DIR, 'students.json');
-const TOPIC_FILE = path.join(DATA_DIR, 'topic.json');
-const ADMIN_FILE = path.join(DATA_DIR, 'admin.json');
+import { query, initDb } from './db';
 
 type Student = {
   name: string;
@@ -15,65 +9,48 @@ type Student = {
   isSubmitted: boolean;
 };
 
-function ensureDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
+// Internal helper to get a value by key
+async function getValue(key: string, defaultValue: any): Promise<any> {
+  await initDb();
+  const res = await query('SELECT value FROM app_storage WHERE key = $1', [key]);
+  if (res.rowCount === 0) {
+    return defaultValue;
   }
+  return res.rows[0].value;
 }
 
-export function getStudents(): Student[] {
-  ensureDir();
-  if (!fs.existsSync(STUDENTS_FILE)) {
-    return [];
-  }
-  try {
-    const data = fs.readFileSync(STUDENTS_FILE, 'utf-8');
-    return JSON.parse(data);
-  } catch (e) {
-    console.error("Error reading students file", e);
-    return [];
-  }
+// Internal helper to save a value by key
+async function saveValue(key: string, value: any) {
+  await initDb();
+  await query(`
+    INSERT INTO app_storage (key, value)
+    VALUES ($1, $2)
+    ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+  `, [key, JSON.stringify(value)]);
 }
 
-export function saveStudents(students: Student[]) {
-  ensureDir();
-  fs.writeFileSync(STUDENTS_FILE, JSON.stringify(students, null, 2), 'utf-8');
+export async function getStudents(): Promise<Student[]> {
+  return getValue('students', []);
 }
 
-export function getTopic(): string {
-  ensureDir();
-  if (!fs.existsSync(TOPIC_FILE)) {
-    return "자율 글쓰기 영역";
-  }
-  try {
-    const data = fs.readFileSync(TOPIC_FILE, 'utf-8');
-    const { topic } = JSON.parse(data);
-    return topic;
-  } catch (e) {
-    return "자율 글쓰기 영역";
-  }
+export async function saveStudents(students: Student[]) {
+  await saveValue('students', students);
 }
 
-export function saveTopic(topic: string) {
-  ensureDir();
-  fs.writeFileSync(TOPIC_FILE, JSON.stringify({ topic }), 'utf-8');
+export async function getTopic(): Promise<string> {
+  const data = await getValue('topic', { topic: "자율 글쓰기 영역" });
+  return data.topic;
 }
 
-export function getAdminPassword(): string {
-  ensureDir();
-  if (!fs.existsSync(ADMIN_FILE)) {
-    return "admin123"; // Default password
-  }
-  try {
-    const data = fs.readFileSync(ADMIN_FILE, 'utf-8');
-    const { password } = JSON.parse(data);
-    return password;
-  } catch (e) {
-    return "admin123";
-  }
+export async function saveTopic(topic: string) {
+  await saveValue('topic', { topic });
 }
 
-export function saveAdminPassword(password: string) {
-  ensureDir();
-  fs.writeFileSync(ADMIN_FILE, JSON.stringify({ password }), 'utf-8');
+export async function getAdminPassword(): Promise<string> {
+  const data = await getValue('admin', { password: "admin123" });
+  return data.password;
+}
+
+export async function saveAdminPassword(password: string) {
+  await saveValue('admin', { password });
 }
