@@ -218,7 +218,7 @@ export default function AdminDashboard() {
               로그인하기
             </button>
           </form>
-          <p className="text-center text-xs text-zinc-400 font-bold">초기 비밀번호: admin123 (로그인 후 변경 가능)</p>
+          <p className="text-center text-xs text-zinc-400 font-bold">초기 비밀번호: bong0925 (로그인 후 변경 가능)</p>
         </motion.div>
       </main>
     );

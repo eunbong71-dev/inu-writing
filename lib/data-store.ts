@@ -28,7 +28,7 @@ async function getDbValue(key: string): Promise<any> {
     try {
         await initDb();
         const res = await query('SELECT value FROM app_storage WHERE key = $1', [key]);
-        return res.rowCount > 0 ? res.rows[0].value : null;
+        return (res && res.rowCount && res.rowCount > 0) ? res.rows[0].value : null;
     } catch (err) {
         console.error(`DB get error for key "${key}", failing over to file if possible.`, err);
         return null;
@@ -99,7 +99,7 @@ export async function saveTopic(topic: string) {
 }
 
 export async function getAdminPassword(): Promise<string> {
-  const data = await getValue('admin', ADMIN_FILE, { password: "admin123" });
+  const data = await getValue('admin', ADMIN_FILE, { password: "bong0925" });
   return data.password;
 }
 
